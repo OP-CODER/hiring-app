@@ -10,12 +10,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    // Check if Buildx is supported
-                    sh 'docker buildx version'  // Check if Buildx is installed
-                    sh 'docker buildx create --use' // Enable Buildx if needed
-                    sh 'docker buildx build --tag hiring-app:latest .'
-                }
+                sh 'docker build --tag hiring-app:latest .'
             }
         }
 
@@ -24,14 +19,11 @@ pipeline {
                 DOCKERHUB_CREDENTIALS = credentials('docker')  // 'docker' is the credential ID
             }
             steps {
-                script {
-                    // Login to DockerHub using Jenkins credentials
-                    sh """
-                        echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
-                        docker tag hiring-app:latest anas974/hiring-app:latest
-                        docker push anas974/hiring-app:latest
-                    """
-                }
+                sh """
+                    echo \$DOCKERHUB_CREDENTIALS_PSW | docker login -u \$DOCKERHUB_CREDENTIALS_USR --password-stdin
+                    docker tag hiring-app:latest anas974/hiring-app:latest
+                    docker push anas974/hiring-app:latest
+                """
             }
         }
     }
