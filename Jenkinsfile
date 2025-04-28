@@ -1,54 +1,32 @@
 pipeline {
     agent any
 
-    environment {
-        // Define your environment variables here
-        DOCKERHUB_CREDENTIALS = credentials('docker') // Jenkins credentials ID for DockerHub
-        DOCKER_IMAGE = 'anas974/hiring-app' // Replace with your DockerHub image name
-        VERSION = "${env.BUILD_ID}" // Using build number as version
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
-                    url: 'https://github.com/dakkani/hiring-app.git' // Replace with your repo URL
-            }
-        }
-
-        stage('Build with Maven') {
-            steps {
-                sh 'mvn clean package' // This should generate your WAR file
+                git url: 'https://github.com/betawins/hiring-app.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${env.DOCKER_IMAGE}:${env.VERSION}")
-                }
+                sh '''
+                    docker build -t hiring-app:latest .
+                '''
             }
         }
 
         stage('Push to DockerHub') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-id') {
-                        docker.image("${env.DOCKER_IMAGE}:${env.VERSION}").push()
-                        // Optionally push as latest
-                        docker.image("${env.DOCKER_IMAGE}:${env.VERSION}").push('latest')
-                    }
-                }
+            environment {
+                DOCKERHUB_CREDENTIALS = credentials('docker')
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully!'
-        }
-        failure {
-            echo 'Pipeline failed!'
+            steps {
+                sh '''
+                    echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                    docker tag hiring-app:latest your-dockerhub-username/hiring-app:latest
+                    docker push anas974/hiring-app:latest
+                '''
+            }
         }
     }
 }
