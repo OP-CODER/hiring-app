@@ -10,7 +10,11 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build --tag hiring-app:latest .'
+                script {
+                    // Using Docker Buildx for building the image
+                    sh 'docker buildx create --use'  // Set Buildx as the active builder
+                    sh 'docker buildx build --tag hiring-app:latest .'
+                }
             }
         }
 
