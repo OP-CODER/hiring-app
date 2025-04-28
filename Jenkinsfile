@@ -11,7 +11,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                    docker buildx -t hiring-app:latest .
+                    sh 'docker buildx build --tag hiring-app:latest .'
                 '''
             }
         }
