@@ -4,15 +4,16 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/betawins/hiring-app.git'
+                git branch: 'main', url: 'https://github.com/OP-CODER/hiring-app.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Using Docker Buildx for building the image
-                    sh 'docker buildx create --use'  // Set Buildx as the active builder
+                    // Check if Buildx is supported
+                    sh 'docker buildx version'  // Check if Buildx is installed
+                    sh 'docker buildx create --use' // Enable Buildx if needed
                     sh 'docker buildx build --tag hiring-app:latest .'
                 }
             }
